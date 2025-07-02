@@ -115,3 +115,61 @@ exports.deleteKontak = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 };
+
+// SYNC
+// Fungsi helper untuk membersihkan nomor telepon
+const normalizePhoneNumber = (phone) => {
+  if (!phone) return '';
+  // Menghapus spasi, tanda hubung (-), dan mengganti +62 di awal dengan 0 jika perlu
+  let normalized = phone.replace(/[-\s]/g, '');
+  if (normalized.startsWith('+62')) {
+    normalized = '0' + normalized.substring(3);
+  }
+  return normalized;
+};
+
+// Ganti fungsi syncKontak Anda dengan yang ini
+exports.syncKontak = async (req, res) => {
+  const deviceContacts = req.body.contacts;
+
+  if (!deviceContacts || !Array.isArray(deviceContacts)) {
+    return res.status(400).json({ success: false, message: 'Data kontak tidak valid.' });
+  }
+
+  let newContactsAdded = 0;
+  let errors = [];
+
+  try {
+    for (const contact of deviceContacts) {
+      const normalizedPhone = normalizePhoneNumber(contact.no_hp);
+
+      // Lewati jika tidak ada nama atau nomor hp setelah dibersihkan
+      if (!contact.nama || !normalizedPhone) {
+        continue;
+      }
+
+      // Cek duplikat berdasarkan nomor yang sudah dinormalisasi
+      const existingContact = await Kontak.findOne({ no_hp: normalizedPhone });
+
+      if (!existingContact) {
+        const newContact = new Kontak({
+          nama: contact.nama,
+          email: contact.email || '',
+          no_hp: normalizedPhone, // Simpan nomor yang sudah bersih
+        });
+        await newContact.save();
+        newContactsAdded++;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Sinkronisasi selesai. ${newContactsAdded} kontak baru ditambahkan.`,
+    });
+
+  } catch (error) {
+    // Kirim pesan error yang lebih spesifik jika ada
+    console.error('Sync Error:', error); // Log error lengkap di server
+    res.status(500).json({ success: false, message: error.message || 'Server Error saat sinkronisasi.' });
+  }
+};
