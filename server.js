@@ -10,7 +10,7 @@ const mongoose = require('mongoose'); // Diperlukan untuk cek status koneksi
 
 // 2. Inisialisasi aplikasi Express
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // 3. Hubungkan ke Database MongoDB
 // Fungsi ini akan menjalankan koneksi dan menghentikan server jika gagal.

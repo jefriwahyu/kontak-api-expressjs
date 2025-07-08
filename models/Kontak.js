@@ -29,6 +29,12 @@ const kontakSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    grup: {
+      type: String,
+      // Hanya izinkan nilai ini atau string kosong
+      enum: ['Keluarga', 'Teman', 'Kerja', ''], 
+      default: ''
+    },
   },
   {
     // Menambahkan field createdAt dan updatedAt secara otomatis
