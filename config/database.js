@@ -1,35 +1,3 @@
-// require('dotenv').config();
-// const express = require('express');
-// const cors = require('cors');
-// const mongoose = require('mongoose');
-
-// const app = express();
-// const PORT = process.env.PORT || 3000;
-
-// // Middleware
-// app.use(cors());
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
-
-// // Connect to MongoDB
-// mongoose.connect(process.env.MONGODB_URI, {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// })
-// .then(() => console.log('MongoDB Connected'))
-// .catch(err => console.error('MongoDB connection error:', err));
-
-// // Simple test route
-// app.get('/', (req, res) => {
-//   res.json({
-//     message: 'Server berjalan dengan baik!',
-//     mongodb: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
-//   });
-// });
-
-// app.listen(PORT, () => {
-//   console.log(`Server berjalan di http://localhost:${PORT}`);
-// });
 
 // database.js
 require('dotenv').config(); // Pastikan dotenv dimuat di sini juga untuk MONGODB_URI
