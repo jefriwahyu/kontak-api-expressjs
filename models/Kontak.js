@@ -35,6 +35,11 @@ const kontakSchema = new mongoose.Schema(
       enum: ['Keluarga', 'Teman', 'Kerja', ''], 
       default: ''
     },
+    // Field untuk menandai kontak sebagai favorit
+    isFavorite: {
+      type: Boolean,
+      default: false
+    },
   },
   {
     // Menambahkan field createdAt dan updatedAt secara otomatis
