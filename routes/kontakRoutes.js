@@ -67,11 +67,11 @@ router.route("/").get(getAllKontak).post(createKontak);
 router.route("/:id").get(getKontakById).put(updateKontak).delete(deleteKontak);
 
 // Route untuk toggle favorite status kontak
+// Route untuk toggle favorite status kontak - UPDATED VERSION
 router.patch("/:id/favorite", async (req, res) => {
   try {
     const { id } = req.params;
-    const { isFavorite } = req.body;
-
+    
     // Validasi ID MongoDB
     if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
@@ -89,8 +89,11 @@ router.patch("/:id/favorite", async (req, res) => {
       });
     }
 
+    // Toggle status favorite (otomatis kebalikan dari status saat ini)
+    const newFavoriteStatus = !contact.isFavorite;
+
     // Cek limit favorite hanya saat menambah favorite
-    if (isFavorite && !contact.isFavorite) {
+    if (newFavoriteStatus && !contact.isFavorite) {
       const favoriteCount = await Kontak.countDocuments({ isFavorite: true });
       if (favoriteCount >= 5) {
         return res.status(400).json({
@@ -101,13 +104,17 @@ router.patch("/:id/favorite", async (req, res) => {
     }
 
     // Update status favorite
-    contact.isFavorite = isFavorite;
+    contact.isFavorite = newFavoriteStatus;
     await contact.save();
 
+    // PERBAIKAN: Format response agar konsisten dengan expectation Flutter
     return res.json({
       success: true,
-      message: `Kontak ${isFavorite ? "ditambahkan ke" : "dihapus dari"} favorit`,
-      data: contact,
+      message: `Kontak ${newFavoriteStatus ? "ditambahkan ke" : "dihapus dari"} favorit`,
+      data: {
+        id: contact._id.toString(), // Pastikan ID dalam format string
+        isFavorite: contact.isFavorite // Status favorite yang baru
+      }
     });
   } catch (err) {
     return res.status(500).json({
