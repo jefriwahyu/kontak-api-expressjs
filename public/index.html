@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontak API Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .endpoint {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 4px 4px 0;
+        }
+        .method {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            color: white;
+            margin-right: 10px;
+        }
+        .get { background-color: #2ecc71; }
+        .post { background-color: #3498db; }
+        .put { background-color: #f39c12; }
+        .patch { background-color: #9b59b6; }
+        .delete { background-color: #e74c3c; }
+        .route {
+            font-family: monospace;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .description {
+            margin: 10px 0;
+        }
+        .params {
+            margin-top: 10px;
+        }
+        .param {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        .param-name {
+            font-weight: bold;
+            min-width: 120px;
+            font-family: monospace;
+        }
+        .response {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e8f4f8;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Kontak API Documentation</h1>
+    
+    <div class="endpoint">
+        <div>
+            <span class="method get">GET</span>
+            <span class="route">/api/kontak</span>
+        </div>
+        <div class="description">Get all contacts</div>
+        <div class="response">
+            <strong>Response:</strong>
+            <pre>{
+    "success": true,
+    "data": [
+        {
+            "_id": "string",
+            "nama": "string",
+            "nomor": "string",
+            "email": "string",
+            "alamat": "string",
+            "isFavorite": boolean,
+            "avatar": "string (URL)",
+            "createdAt": "date",
+            "updatedAt": "date"
+        },
+        ...
+    ]
+}</pre>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <div>
+            <span class="method get">GET</span>
+            <span class="route">/api/kontak/:id</span>
+        </div>
+        <div class="description">Get a single contact by ID</div>
+        <div class="params">
+            <div class="param">
+                <div class="param-name">URL Parameter:</div>
+                <div>id (string) - MongoDB ID of the contact</div>
+            </div>
+        </div>
+        <div class="response">
+            <strong>Response:</strong>
+            <pre>{
+    "success": true,
+    "data": {
+        "_id": "string",
+        "nama": "string",
+        "nomor": "string",
+        "email": "string",
+        "alamat": "string",
+        "isFavorite": boolean,
+        "avatar": "string (URL)",
+        "createdAt": "date",
+        "updatedAt": "date"
+    }
+}</pre>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <div>
+            <span class="method post">POST</span>
+            <span class="route">/api/kontak</span>
+        </div>
+        <div class="description">Create a new contact</div>
+        <div class="params">
+            <div class="param">
+                <div class="param-name">Request Body:</div>
+                <div>JSON object with contact details</div>
+            </div>
+            <pre>{
+    "nama": "string",
+    "nomor": "string",
+    "email": "string", (optional)
+    "alamat": "string", (optional)
+    "isFavorite": boolean, (optional, default false)
+    "avatar": "string (URL)" (optional)
+}</pre>
+        </div>
+        <div class="response">
+            <strong>Response:</strong>
+            <pre>{
+    "success": true,
+    "message": "Kontak berhasil dibuat",
+    "data": {
+        "_id": "string",
+        "nama": "string",
+        "nomor": "string",
+        "email": "string",
+        "alamat": "string",
+        "isFavorite": boolean,
+        "avatar": "string (URL)",
+        "createdAt": "date",
+        "updatedAt": "date"
+    }
+}</pre>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <div>
+            <span class="method put">PUT</span>
+            <span class="route">/api/kontak/:id</span>
+        </div>
+        <div class="description">Update a contact</div>
+        <div class="params">
+            <div class="param">
+                <div class="param-name">URL Parameter:</div>
+                <div>id (string) - MongoDB ID of the contact</div>
+            </div>
+            <div class="param">
+                <div class="param-name">Request Body:</div>
+                <div>JSON object with fields to update</div>
+            </div>
+            <pre>{
+    "nama": "string", (optional)
+    "nomor": "string", (optional)
+    "email": "string", (optional)
+    "alamat": "string", (optional)
+    "isFavorite": boolean, (optional)
+    "avatar": "string (URL)" (optional)
+}</pre>
+        </div>
+        <div class="response">
+            <strong>Response:</strong>
+            <pre>{
+    "success": true,
+    "message": "Kontak berhasil diperbarui",
+    "data": {
+        "_id": "string",
+        "nama": "string",
+        "nomor": "string",
+        "email": "string",
+        "alamat": "string",
+        "isFavorite": boolean,
+        "avatar": "string (URL)",
+        "createdAt": "date",
+        "updatedAt": "date"
+    }
+}</pre>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <div>
+            <span class="method delete">DELETE</span>
+            <span class="route">/api/kontak/:id</span>
+        </div>
+        <div class="description">Delete a contact</div>
+        <div class="params">
+            <div class="param">
+                <div class="param-name">URL Parameter:</div>
+                <div>id (string) - MongoDB ID of the contact</div>
+            </div>
+        </div>
+        <div class="response">
+            <strong>Response:</strong>
+            <pre>{
+    "success": true,
+    "message": "Kontak berhasil dihapus"
+}</pre>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <div>
+            <span class="method patch">PATCH</span>
+            <span class="route">/api/kontak/:id/favorite</span>
+        </div>
+        <div class="description">Toggle favorite status of a contact (max 5 favorites)</div>
+        <div class="params">
+            <div class="param">
+                <div class="param-name">URL Parameter:</div>
+                <div>id (string) - MongoDB ID of the contact</div>
+            </div>
+        </div>
+        <div class="response">
+            <strong>Response:</strong>
+            <pre>{
+    "success": true,
+    "message": "Kontak ditambahkan ke/dihapus dari favorit",
+    "data": {
+        "id": "string",
+        "isFavorite": boolean
+    }
+}</pre>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <div>
+            <span class="method post">POST</span>
+            <span class="route">/api/kontak/upload</span>
+        </div>
+        <div class="description">Upload an avatar image (max 1MB)</div>
+        <div class="params">
+            <div class="param">
+                <div class="param-name">Form Data:</div>
+                <div>avatar (file) - Image file to upload</div>
+            </div>
+        </div>
+        <div class="response">
+            <strong>Response:</strong>
+            <pre>{
+    "success": true,
+    "message": "Upload berhasil",
+    "url": "http://example.com/uploads/avatar-1234567890.jpg"
+}</pre>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <div>
+            <span class="method post">POST</span>
+            <span class="route">/api/kontak/sync</span>
+        </div>
+        <div class="description">Synchronize contacts (implementation depends on your syncKontak function)</div>
+        <div class="response">
+            <strong>Response:</strong>
+            <pre>{
+    "success": true,
+    "message": "Sync completed",
+    "data": [...] // Depends on your implementation
+}</pre>
+        </div>
+    </div>
+</body>
+</html>
