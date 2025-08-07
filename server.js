@@ -1,4 +1,4 @@
-// server.js (Versi Baru yang Bersih dan Terstruktur)
+
 
 // 1. Impor semua library yang dibutuhkan
 require('dotenv').config();
@@ -41,7 +41,6 @@ app.get('/api/status', (req, res) => {
 });
 
 // 5. Error Handling Middleware
-// Middleware ini harus ditempatkan setelah semua route.
 
 // Handle untuk endpoint yang tidak ditemukan (404 Not Found)
 app.use((req, res, next) => {

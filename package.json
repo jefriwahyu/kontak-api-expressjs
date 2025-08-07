@@ -1,7 +1,7 @@
 {
-  "name": "crud-pemasok-api",
+  "name": "kontak_js",
   "version": "1.0.0",
-  "description": "CRUD API untuk Master Pemasok dengan Express dan MongoDB",
+  "description": "CRUD API untuk Master Kontak dengan Express dan MongoDB",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
