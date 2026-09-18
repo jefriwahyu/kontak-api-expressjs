@@ -12,6 +12,14 @@ const mongoose = require('mongoose'); // Diperlukan untuk cek status koneksi
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Matikan ETag + cegah cache untuk /api agar Flutter Web selalu dapat 200 + body penuh
+// (Express default kirim ETag -> browser dapat 304 kosong -> Dio parsing gagal -> list kosong)
+app.disable('etag');
+app.use('/api', (req, res, next) => {
+    res.set('Cache-Control', 'no-store');
+    next();
+});
+
 // 3. Hubungkan ke Database MongoDB
 // Fungsi ini akan menjalankan koneksi dan menghentikan server jika gagal.
 connectDB();
@@ -45,7 +53,8 @@ app.get('/api/status', (req, res) => {
 // Handle untuk endpoint yang tidak ditemukan (404 Not Found)
 app.use((req, res, next) => {
     // Hanya kirim response JSON 404 jika request ditujukan untuk path API
-    if (req.originalUrl.startsWith('/api/')) {
+    // (normalisasi slash ganda agar //api/... tetap dikenali sebagai API, bukan HTML)
+    if (req.originalUrl.replace(/\/{2,}/g, '/').startsWith('/api/')) {
         return res.status(404).json({ success: false, message: 'Endpoint tidak ditemukan.' });
     }
     // Jika tidak, biarkan default (mungkin akan ditangani oleh frontend jika ada)

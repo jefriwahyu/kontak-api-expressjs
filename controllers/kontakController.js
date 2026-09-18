@@ -18,6 +18,19 @@ const sanitizeInput = (input) => {
     return input.trim().replace(/[<>]/g, ''); // Basic XSS prevention
 };
 
+// Flutter mengirim boolean sebagai string ('true'/'false') karena Map<String, String>.
+// Koersi ke boolean sebelum validasi agar update/create dari aplikasi tidak 400.
+const coerceBoolean = (val) => {
+    if (typeof val === 'boolean') return val;
+    if (typeof val === 'string') {
+        const v = val.trim().toLowerCase();
+        if (v === 'true' || v === '1') return true;
+        if (v === 'false' || v === '0' || v === '') return false;
+    }
+    if (typeof val === 'number') return val === 1;
+    return val; // tipe lain dibiarkan, validasi yang akan menolak
+};
+
 const normalizePhoneNumber = (phone) => {
     if (!phone) return '';
     let normalized = phone.replace(/[-\s]/g, '');
@@ -71,6 +84,12 @@ const validateKontakData = (data, isUpdate = false) => {
         } else if (data.avatar.length > 500) {
             errors.push('URL avatar terlalu panjang');
         }
+    }
+    
+    // Validasi grup (opsional, harus salah satu nilai enum schema)
+    const allowedGrup = ['Keluarga', 'Teman', 'Kerja', 'Lainnya', ''];
+    if (data.grup !== undefined && !allowedGrup.includes(data.grup)) {
+        errors.push('Grup tidak valid (pilih Keluarga, Teman, Kerja, atau Lainnya)');
     }
     
     // Validasi isFavorite
@@ -142,7 +161,9 @@ exports.createKontak = async (req, res) => {
             email: sanitizeInput(req.body.email),
             no_hp: sanitizeInput(req.body.no_hp),
             avatar: sanitizeInput(req.body.avatar),
-            isFavorite: req.body.isFavorite
+            alamat: sanitizeInput(req.body.alamat),
+            grup: sanitizeInput(req.body.grup),
+            isFavorite: coerceBoolean(req.body.isFavorite)
         };
         
         // Validasi data
@@ -197,6 +218,8 @@ exports.createKontak = async (req, res) => {
             email: sanitizedData.email ? sanitizedData.email.toLowerCase().trim() : '',
             no_hp: normalizedPhone,
             avatar: sanitizedData.avatar || '',
+            alamat: sanitizedData.alamat || '',
+            grup: sanitizedData.grup || '',
             isFavorite: sanitizedData.isFavorite || false
         };
         
@@ -254,7 +277,9 @@ exports.updateKontak = async (req, res) => {
         if (req.body.email !== undefined) sanitizedData.email = sanitizeInput(req.body.email);
         if (req.body.no_hp !== undefined) sanitizedData.no_hp = sanitizeInput(req.body.no_hp);
         if (req.body.avatar !== undefined) sanitizedData.avatar = sanitizeInput(req.body.avatar);
-        if (req.body.isFavorite !== undefined) sanitizedData.isFavorite = req.body.isFavorite;
+        if (req.body.alamat !== undefined) sanitizedData.alamat = sanitizeInput(req.body.alamat);
+        if (req.body.grup !== undefined) sanitizedData.grup = sanitizeInput(req.body.grup);
+        if (req.body.isFavorite !== undefined) sanitizedData.isFavorite = coerceBoolean(req.body.isFavorite);
         
         // Validasi data yang akan diupdate
         const validationErrors = validateKontakData(sanitizedData, true);
@@ -283,36 +308,46 @@ exports.updateKontak = async (req, res) => {
             updateData.email = sanitizedData.email ? sanitizedData.email.toLowerCase().trim() : '';
         }
         if (sanitizedData.avatar !== undefined) updateData.avatar = sanitizedData.avatar;
+        if (sanitizedData.alamat !== undefined) updateData.alamat = sanitizedData.alamat;
+        if (sanitizedData.grup !== undefined) updateData.grup = sanitizedData.grup;
         
         // Handle nomor HP update
         if (sanitizedData.no_hp) {
             const normalizedPhone = normalizePhoneNumber(sanitizedData.no_hp);
-            
-            // Cek duplikasi nomor HP (kecuali untuk kontak yang sedang diupdate)
-            const duplicatePhone = await Kontak.findOne({ 
-                no_hp: normalizedPhone,
-                _id: { $ne: id }
-            });
-            if (duplicatePhone) {
-                return res.status(409).json({
-                    success: false,
-                    message: 'Nomor HP sudah digunakan kontak lain'
+
+            // Cek duplikasi hanya jika nomor BERUBAH dari yang tersimpan.
+            // (Data impor lama boleh punya nomor kembar; edit tanpa ubah nomor harus tetap bisa.)
+            if (normalizedPhone !== existingContact.no_hp) {
+                // Cek duplikasi nomor HP (kecuali untuk kontak yang sedang diupdate)
+                const duplicatePhone = await Kontak.findOne({
+                    no_hp: normalizedPhone,
+                    _id: { $ne: id }
                 });
+                if (duplicatePhone) {
+                    return res.status(409).json({
+                        success: false,
+                        message: 'Nomor HP sudah digunakan kontak lain'
+                    });
+                }
             }
             updateData.no_hp = normalizedPhone;
         }
-        
+
         // Handle email update
         if (sanitizedData.email && sanitizedData.email !== '') {
-            const duplicateEmail = await Kontak.findOne({ 
-                email: sanitizedData.email.toLowerCase(),
-                _id: { $ne: id }
-            });
-            if (duplicateEmail) {
-                return res.status(409).json({
-                    success: false,
-                    message: 'Email sudah digunakan kontak lain'
+            const newEmail = sanitizedData.email.toLowerCase();
+            // Cek duplikasi hanya jika email BERUBAH dari yang tersimpan.
+            if (newEmail !== (existingContact.email || '').toLowerCase()) {
+                const duplicateEmail = await Kontak.findOne({
+                    email: newEmail,
+                    _id: { $ne: id }
                 });
+                if (duplicateEmail) {
+                    return res.status(409).json({
+                        success: false,
+                        message: 'Email sudah digunakan kontak lain'
+                    });
+                }
             }
         }
         

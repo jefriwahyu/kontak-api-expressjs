@@ -32,7 +32,7 @@ const kontakSchema = new mongoose.Schema(
     grup: {
       type: String,
       // Hanya izinkan nilai ini atau string kosong
-      enum: ['Keluarga', 'Teman', 'Kerja', ''], 
+      enum: ['Keluarga', 'Teman', 'Kerja', 'Lainnya', ''],
       default: ''
     },
     // Field untuk menandai kontak sebagai favorit
